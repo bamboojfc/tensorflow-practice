@@ -10,4 +10,6 @@ e = d - c
 g = f / e
 
 sess = tf.Session()
-print 'g =', sess.run(g)
+print b                     # b is a Tensor object
+print sess.run(b)           # this returns an actual value of b
+print 'g =', sess.run(g)    # this returns an actual value of g by walk through all nodes which g depends on (all)
