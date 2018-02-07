@@ -5,4 +5,5 @@ WORKDIR ./home/TensorFlow
 RUN mkdir ./src
 COPY ./src ./src
 
-CMD ["python", "./src/HelloWorld.py"]
+RUN pip install tensorflow
+CMD ["python", "./src/CreateGraphExercise.py"]
