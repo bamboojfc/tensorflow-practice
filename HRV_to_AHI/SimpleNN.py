@@ -14,8 +14,8 @@ import numpy as np
 
 # Parameters
 learning_rate = 0.1
-num_steps = 5
-batch_size = 128
+num_steps = 2000
+batch_size = 128 # set to 2389 to not using minibatch
 display_step = 100
 trainX = '../data/mros-visit1-hrv-summary-0.3.0.csv'
 trainY = '../data/mros-visit1-dataset-0.3.0.csv'
@@ -24,6 +24,7 @@ column = 412 # column index of AHI value in file
 # Network Parameters
 n_hidden_1 = 256 # 1st layer number of neurons
 n_hidden_2 = 256 # 2nd layer number of neurons
+n_hidden_3 = 256 # 2nd layer number of neurons
 num_input = 19 # HRV summary column (features)
 num_classes = 3 # AHI total classes
 
@@ -35,11 +36,13 @@ Y = tf.placeholder("float", [None, num_classes])
 weights = {
     'h1': tf.Variable(tf.random_normal([num_input, n_hidden_1])),
     'h2': tf.Variable(tf.random_normal([n_hidden_1, n_hidden_2])),
-    'out': tf.Variable(tf.random_normal([n_hidden_2, num_classes]))
+    'h3': tf.Variable(tf.random_normal([n_hidden_2, n_hidden_3])),
+    'out': tf.Variable(tf.random_normal([n_hidden_3, num_classes]))
 }
 biases = {
     'b1': tf.Variable(tf.random_normal([n_hidden_1])),
     'b2': tf.Variable(tf.random_normal([n_hidden_2])),
+    'b3': tf.Variable(tf.random_normal([n_hidden_3])),
     'out': tf.Variable(tf.random_normal([num_classes]))
 }
 
@@ -70,8 +73,10 @@ def neural_net(x):
     layer_1 = tf.add(tf.matmul(x, weights['h1']), biases['b1'])
     # Hidden fully connected layer with 256 neurons
     layer_2 = tf.add(tf.matmul(layer_1, weights['h2']), biases['b2'])
+    # Hidden fully connected layer with 256 neurons
+    layer_3 = tf.add(tf.matmul(layer_2, weights['h3']), biases['b3'])
     # Output fully connected layer with a neuron for each class
-    out_layer = tf.matmul(layer_2, weights['out']) + biases['out']
+    out_layer = tf.matmul(layer_3, weights['out']) + biases['out']
     return out_layer
 
 # Construct model
@@ -101,15 +106,15 @@ with tf.Session() as sess:
 
     for step in range(1, num_steps+1):
 
-        r = np.random.random_integers(len(trX), size=batch_size)
-        print r
-        batch_X = trX[r,:]
-        batch_Y = trY[r]
+        if batch_size != len(trX):
+            r = np.random.random_integers(len(trX)-1, size=batch_size)
+            batch_X = trX[r,:]
+            batch_Y = trY[r]
+        else:
+            batch_X = trX
+            batch_Y = trY
         
         # Run optimization op (backprop)
-        print('batch_X', batch_X.shape, batch_X)
-        print('batch_Y', batch_Y.shape, batch_Y)
-        '''
         sess.run(train_op, feed_dict={X: batch_X, Y: batch_Y})
         if step % display_step == 0 or step == 1:
             # Calculate batch loss and accuracy
@@ -119,7 +124,7 @@ with tf.Session() as sess:
             print("Step " + str(step) + ", Minibatch Loss= " + \
                   "{:.4f}".format(loss) + ", Training Accuracy= " + \
                   "{:.3f}".format(acc))
-        '''
+        
     print("Optimization Finished!")
     '''
     # Calculate accuracy for MNIST test images
