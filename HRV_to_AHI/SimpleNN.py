@@ -14,7 +14,8 @@ import numpy as np
 
 # Parameters
 learning_rate = 0.1
-num_steps = 500
+num_steps = 5
+batch_size = 128
 display_step = 100
 trainX = '../data/mros-visit1-hrv-summary-0.3.0.csv'
 trainY = '../data/mros-visit1-dataset-0.3.0.csv'
@@ -44,7 +45,7 @@ biases = {
 
 # get train dataset
 def get_data(trainX_fname, trainY_fname, labeled_column):
-    
+
     dataX = genfromtxt(trainX_fname, delimiter=',', skip_header=1, dtype='string')
     patient_id = dataX[:,0]
     dataX = dataX[:,1:]
@@ -60,7 +61,8 @@ def get_data(trainX_fname, trainY_fname, labeled_column):
     return tf.convert_to_tensor(dataX, dtype=tf.float32),tf.convert_to_tensor(tmp, dtype=tf.int16)
 
 # define get data ops
-train_data_X, train_data_Y = get_data(trainX_fname=trainX, trainY_fname=trainY, labeled_column=column)
+train_data_X, train_data_Y = get_data(trainX_fname=trainX, trainY_fname=trainY, 
+                                        labeled_column=column)
 
 # Create model
 def neural_net(x):
@@ -94,22 +96,30 @@ with tf.Session() as sess:
 
     # Run the initializer
     sess.run(init)
+
     trX, trY = sess.run([train_data_X, train_data_Y])
-    
+
     for step in range(1, num_steps+1):
+
+        r = np.random.random_integers(len(trX), size=batch_size)
+        print r
+        batch_X = trX[r,:]
+        batch_Y = trY[r]
+        
         # Run optimization op (backprop)
-        print('trX', trX.shape, trX)
-        print('trY', trY.shape, trY)
-        sess.run(train_op, feed_dict={X: trX, Y: trY})
+        print('batch_X', batch_X.shape, batch_X)
+        print('batch_Y', batch_Y.shape, batch_Y)
+        '''
+        sess.run(train_op, feed_dict={X: batch_X, Y: batch_Y})
         if step % display_step == 0 or step == 1:
             # Calculate batch loss and accuracy
-            loss, acc = sess.run([loss_op, accuracy], feed_dict={X: trX,
-                                                                 Y: trY})
-                                                                 
+            loss, acc = sess.run([loss_op, accuracy], feed_dict={X: batch_X,
+                                                                 Y: batch_Y})
+
             print("Step " + str(step) + ", Minibatch Loss= " + \
                   "{:.4f}".format(loss) + ", Training Accuracy= " + \
                   "{:.3f}".format(acc))
-
+        '''
     print("Optimization Finished!")
     '''
     # Calculate accuracy for MNIST test images
