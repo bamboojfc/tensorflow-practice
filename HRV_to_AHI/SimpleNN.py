@@ -52,15 +52,12 @@ def get_data(trainX_fname, trainY_fname, labeled_column):
     # select only AHI value which contained in hrv summary data
     dataY = genfromtxt(trainY_fname, delimiter=',', skip_header=1, dtype='string')
     dataY = dataY[np.isin(dataY[:,0], patient_id), labeled_column].astype('int')
-    tmp = np.copy(dataY)
-    dataY[dataY < 5] = 0
-    dataY[dataY >= 30] = 2
-    dataY[dataY >= 5] = 1
-     
-    for i in range(len(dataY)):
-        print tmp[i], dataY[i]
+    tmp = np.zeros(shape=(len(dataY), num_classes), dtype='int')
+    tmp[dataY < 5] = [1, 0, 0]
+    tmp[dataY >= 30] = [0, 0, 1]
+    tmp[dataY >= 5] = [0, 1, 0]
 
-    return tf.convert_to_tensor(dataX, dtype=tf.float32),tf.convert_to_tensor(dataY, dtype=tf.int16)
+    return tf.convert_to_tensor(dataX, dtype=tf.float32),tf.convert_to_tensor(tmp, dtype=tf.int16)
 
 # define get data ops
 train_data_X, train_data_Y = get_data(trainX_fname=trainX, trainY_fname=trainY, labeled_column=column)
@@ -98,24 +95,26 @@ with tf.Session() as sess:
     # Run the initializer
     sess.run(init)
     trX, trY = sess.run([train_data_X, train_data_Y])
-    '''
+    
     for step in range(1, num_steps+1):
         # Run optimization op (backprop)
+        print('trX', trX.shape, trX)
+        print('trY', trY.shape, trY)
         sess.run(train_op, feed_dict={X: trX, Y: trY})
         if step % display_step == 0 or step == 1:
             # Calculate batch loss and accuracy
             loss, acc = sess.run([loss_op, accuracy], feed_dict={X: trX,
                                                                  Y: trY})
-            print("logits:", sess.run(logits, feed_dict={X: trX}))
-            print("Y:", trY)
+                                                                 
             print("Step " + str(step) + ", Minibatch Loss= " + \
                   "{:.4f}".format(loss) + ", Training Accuracy= " + \
                   "{:.3f}".format(acc))
 
     print("Optimization Finished!")
-
+    '''
     # Calculate accuracy for MNIST test images
     print("Testing Accuracy:", \
         sess.run(accuracy, feed_dict={  X: mnist.test.images,
                                         Y: mnist.test.labels}))
     '''
+    
