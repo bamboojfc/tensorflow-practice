@@ -1,27 +1,41 @@
 """
 Using HRV analysis summary to predict OSA Severity Level (based on AHI value)
-Mild : AHI < 5
-Normal : 5 <= AHI < 15
-Severe : 15 <= AHI
+Mild    : AHI < 5
+Normal  : 5 <= AHI < 15
+Severe  : 15 <= AHI
+
+implemented by Nannapas Banluesombatkul
 """
 
 import tensorflow as tf
 from numpy import genfromtxt
+import numpy as np
 
-train = '../data/mros-visit1-hrv-summary-0.3.0.csv'
+## file lists ##
+trainX = '../data/mros-visit1-hrv-summary-0.3.0.csv'
+trainY = '../data/mros-visit1-dataset-0.3.0.csv'
+column = 412 #column index of AHI value in file
 
-def get_data(filename):
-    my_data = genfromtxt(filename, delimiter=',', skip_header=1, dtype='string')
-    patient_id = my_data[:,0]
-    my_data = my_data[:,1:]
-    return tf.convert_to_tensor(my_data, dtype=tf.float32), tf.convert_to_tensor(patient_id)
+## initialize global variables ##
+trPid = []
 
-train_data = get_data(train)
+def get_data(trainX_fname, trainY_fname, labeled_column):
+    
+    dataX = genfromtxt(trainX_fname, delimiter=',', skip_header=1, dtype='string')
+    patient_id = dataX[:,0]
+    dataX = dataX[:,1:]
+
+    # select only AHI value which contained in hrv summary data
+    dataY = genfromtxt(trainY_fname, delimiter=',', skip_header=1, dtype='string')
+    dataY = dataY[np.isin(dataY[:,0], patient_id), labeled_column]
+
+    return tf.convert_to_tensor(dataX, dtype=tf.float32),tf.convert_to_tensor(dataY, dtype=tf.int16)
+
+train_data_X, train_data_Y = get_data(trainX_fname=trainX, trainY_fname=trainY, labeled_column=column)
+
 
 with tf.Session() as sess:
-    train_d, train_pid = sess.run(train_data)
-    print len(train_d), len(train_d[0])
-    print train_d[0]
-    print len(train_pid)
-    print train_pid
+    trX, trY = sess.run([train_data_X, train_data_Y])
+    print 'trX', len(trX), trX
+    print 'trY', len(trY), trY
     
