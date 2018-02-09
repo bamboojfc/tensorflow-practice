@@ -10,6 +10,7 @@ implemented by Nannapas Banluesombatkul
 import tensorflow as tf
 from numpy import genfromtxt
 import numpy as np
+import math
 
 
 # Parameters
@@ -20,11 +21,11 @@ display_step = 100
 trainX = '../data/mros-visit1-hrv-summary-0.3.0.csv'
 trainY = '../data/mros-visit1-dataset-0.3.0.csv'
 column = 412 # column index of AHI value in file
+train_percent = 0.8 # percent of data using for train
 
 # Network Parameters
 n_hidden_1 = 256 # 1st layer number of neurons
 n_hidden_2 = 256 # 2nd layer number of neurons
-n_hidden_3 = 256 # 2nd layer number of neurons
 num_input = 19 # HRV summary column (features)
 num_classes = 3 # AHI total classes
 
@@ -36,13 +37,11 @@ Y = tf.placeholder("float", [None, num_classes])
 weights = {
     'h1': tf.Variable(tf.random_normal([num_input, n_hidden_1])),
     'h2': tf.Variable(tf.random_normal([n_hidden_1, n_hidden_2])),
-    'h3': tf.Variable(tf.random_normal([n_hidden_2, n_hidden_3])),
-    'out': tf.Variable(tf.random_normal([n_hidden_3, num_classes]))
+    'out': tf.Variable(tf.random_normal([n_hidden_2, num_classes]))
 }
 biases = {
     'b1': tf.Variable(tf.random_normal([n_hidden_1])),
     'b2': tf.Variable(tf.random_normal([n_hidden_2])),
-    'b3': tf.Variable(tf.random_normal([n_hidden_3])),
     'out': tf.Variable(tf.random_normal([num_classes]))
 }
 
@@ -73,10 +72,8 @@ def neural_net(x):
     layer_1 = tf.add(tf.matmul(x, weights['h1']), biases['b1'])
     # Hidden fully connected layer with 256 neurons
     layer_2 = tf.add(tf.matmul(layer_1, weights['h2']), biases['b2'])
-    # Hidden fully connected layer with 256 neurons
-    layer_3 = tf.add(tf.matmul(layer_2, weights['h3']), biases['b3'])
     # Output fully connected layer with a neuron for each class
-    out_layer = tf.matmul(layer_3, weights['out']) + biases['out']
+    out_layer = tf.matmul(layer_2, weights['out']) + biases['out']
     return out_layer
 
 # Construct model
@@ -102,7 +99,14 @@ with tf.Session() as sess:
     # Run the initializer
     sess.run(init)
 
+    # devide data to train and test
     trX, trY = sess.run([train_data_X, train_data_Y])
+    train_size = int(train_percent * len(trX))
+    teX = trX[train_size:,]
+    teY = trY[train_size:]
+    trX = trX[:train_size]
+    trY = trY[:train_size]    
+
 
     for step in range(1, num_steps+1):
 
@@ -126,10 +130,10 @@ with tf.Session() as sess:
                   "{:.3f}".format(acc))
         
     print("Optimization Finished!")
-    '''
+    
     # Calculate accuracy for MNIST test images
     print("Testing Accuracy:", \
-        sess.run(accuracy, feed_dict={  X: mnist.test.images,
-                                        Y: mnist.test.labels}))
-    '''
+        sess.run(accuracy, feed_dict={  X: teX,
+                                        Y: teY}))
+    
     
