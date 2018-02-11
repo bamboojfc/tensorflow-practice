@@ -62,7 +62,9 @@ loss_op = forest_graph.training_loss(X, Y)
 
 # Measure the accuracy
 infer_op, _, _ = forest_graph.inference_graph(X)
-correct_prediction = tf.equal(tf.argmax(infer_op, 1), tf.cast(Y, tf.int64))
+m = tf.argmax(infer_op, 1)
+c = tf.cast(Y, tf.int64)
+correct_prediction = tf.equal(m, c)
 accuracy_op = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 # Initialize the variables (i.e. assign their default value) and forest resources
@@ -99,6 +101,8 @@ for i in range(1, num_steps + 1):
     if i % 50 == 0 or i == 1:
         acc = sess.run(accuracy_op, feed_dict={X: batch_X, Y: batch_Y})
         print('Step %i, Loss: %f, Acc: %f' % (i, l, acc))
+        print('predict class:', sess.run(m, feed_dict={X: batch_X, Y: batch_Y}), 
+                'actual class:', sess.run(c, feed_dict={X: batch_X, Y: batch_Y}))
 
 # Test Model
 print("Test Accuracy:", sess.run(accuracy_op, feed_dict={X: teX, Y: teY}))
