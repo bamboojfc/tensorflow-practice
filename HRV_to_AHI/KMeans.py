@@ -3,8 +3,8 @@ import tensorflow as tf
 from tensorflow.contrib.factorization import KMeans
 
 # Parameters
-num_steps = 50 # Total steps to train
-k = 5 # The number of clusters algm
+num_steps = 10 # Total steps to train
+k = 6 # The number of clusters algm
 num_classes = 3 # Actual class numbers
 num_features = 19 # HRV summary data
 trainX = '../data/mros-visit1-hrv-summary-0.3.0.csv'

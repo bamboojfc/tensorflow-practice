@@ -1,5 +1,5 @@
 ## RUN this to install python package
-#  > pip install --no-cache-dir -r requirements.txt
+#  > sudo pip install --no-cache-dir -r requirements.txt
 
 tensorflow
 numpy

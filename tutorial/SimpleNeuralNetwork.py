@@ -82,6 +82,8 @@ with tf.Session() as sess:
         batch_x, batch_y = mnist.train.next_batch(batch_size)
         # Run optimization op (backprop)
         sess.run(train_op, feed_dict={X: batch_x, Y: batch_y})
+        print('batch_x', batch_x.shape, batch_x)
+        print('batch_y', batch_y.shape, batch_y)
         if step % display_step == 0 or step == 1:
             # Calculate batch loss and accuracy
             loss, acc = sess.run([loss_op, accuracy], feed_dict={X: batch_x,
