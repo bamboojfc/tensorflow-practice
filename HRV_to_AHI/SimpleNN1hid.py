@@ -14,8 +14,8 @@ import math
 
 
 # Parameters
-learning_rate = 0.1
-num_steps = 20000
+learning_rate = 0.05
+num_steps = 50000
 batch_size = 512 # set to 2389 to not using minibatch
 display_step = 100
 trainX = '../data/mros-visit1-hrv-summary-0.3.0.csv'
@@ -24,8 +24,8 @@ column = 412 # column index of AHI value in file
 train_percent = 0.8 # percent of data using for train
 
 # Network Parameters
-n_hidden_1 = 256 # 1st layer number of neurons
-num_input = 19 # HRV summary column (features)
+n_hidden_1 = 1024 # 1st layer number of neurons
+num_input = 8 # HRV summary column (features)
 num_classes = 3 # AHI total classes
 
 # tf Graph input
@@ -46,7 +46,7 @@ def get_data(trainX_fname, trainY_fname, labeled_column):
 
     dataX = genfromtxt(trainX_fname, delimiter=',', skip_header=1, dtype='string')
     patient_id = dataX[:,0]
-    dataX = dataX[:,1:]
+    dataX = dataX[:,[8,9,10,14,15,16,17,18]]
 
     # select only AHI value which contained in hrv summary data
     dataY = genfromtxt(trainY_fname, delimiter=',', skip_header=1, dtype='string')
