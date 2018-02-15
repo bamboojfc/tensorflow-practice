@@ -15,7 +15,7 @@ import math
 
 # Parameters
 learning_rate = 0.1
-num_steps = 10000
+num_steps = 20000
 batch_size = 512 # set to 2389 to not using minibatch
 display_step = 100
 trainX = '../data/mros-visit1-hrv-summary-0.3.0.csv'
@@ -24,8 +24,7 @@ column = 412 # column index of AHI value in file
 train_percent = 0.8 # percent of data using for train
 
 # Network Parameters
-n_hidden_1 = 512 # 1st layer number of neurons
-n_hidden_2 = 512 # 2nd layer number of neurons
+n_hidden_1 = 256 # 1st layer number of neurons
 num_input = 19 # HRV summary column (features)
 num_classes = 3 # AHI total classes
 
@@ -36,12 +35,10 @@ Y = tf.placeholder("float", [None, num_classes])
 # Store layers weight & bias
 weights = {
     'h1': tf.Variable(tf.random_normal([num_input, n_hidden_1])),
-    'h2': tf.Variable(tf.random_normal([n_hidden_1, n_hidden_2])),
-    'out': tf.Variable(tf.random_normal([n_hidden_2, num_classes]))
+    'out': tf.Variable(tf.random_normal([n_hidden_1, num_classes]))
 }
 biases = {
     'b1': tf.Variable(tf.random_normal([n_hidden_1])),
-    'b2': tf.Variable(tf.random_normal([n_hidden_2])),
     'out': tf.Variable(tf.random_normal([num_classes]))
 }
 
