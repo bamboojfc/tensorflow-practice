@@ -14,7 +14,7 @@ import math
 
 
 # Parameters
-learning_rate = 0.01
+learning_rate = 0.1
 num_steps = 10000
 batch_size = 512 # set to 2389 to not using minibatch
 display_step = 100
