@@ -14,7 +14,7 @@ import math
 
 
 # Parameters
-learning_rate = 0.01
+learning_rate = 0.1
 num_steps = 50000
 batch_size = 512 # set to 2389 to not using minibatch
 display_step = 100
@@ -63,7 +63,7 @@ def get_data(trainX_fname, trainY_fname, labeled_column):
         if y<5:
             tmp[i] = [1, 0, 0]
             group1+=1
-        elif y >= 30:
+        elif y>15 :
             tmp[i] = [0, 0, 1]
             group3+=1            
         else:
