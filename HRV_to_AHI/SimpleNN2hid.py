@@ -14,8 +14,8 @@ import math
 
 
 # Parameters
-learning_rate = 0.1
-num_steps = 1000
+learning_rate = 0.01
+num_steps = 50000
 batch_size = 512 # set to 2389 to not using minibatch
 display_step = 100
 trainX = '../data/mros-visit1-hrv-summary-0.3.0.csv'
@@ -56,10 +56,35 @@ def get_data(trainX_fname, trainY_fname, labeled_column):
     dataY = genfromtxt(trainY_fname, delimiter=',', skip_header=1, dtype='string')
     dataY = dataY[np.isin(dataY[:,0], patient_id), labeled_column].astype('int')
     tmp = np.zeros(shape=(len(dataY), num_classes), dtype='int')
-    tmp[dataY < 5] = [1, 0, 0]
-    tmp[dataY >= 30] = [0, 0, 1]
-    tmp[dataY >= 5] = [0, 1, 0]
+    group1 = 0
+    group2 = 0
+    group3 = 0
+    for i, y in enumerate(dataY):
+        if y<5:
+            tmp[i] = [1, 0, 0]
+            group1+=1
+        elif y >= 30:
+            tmp[i] = [0, 0, 1]
+            group3+=1            
+        else:
+            tmp[i] = [0, 1, 0]  
+            group2+=1
+             
 
+    # group1 = [y for y in dataY if y<5]
+    # group2 = [y for y in dataY if y>=5 and y <30]
+    # group3 = [y for y in dataY if y>=30]
+    # print('Group1:', len(group1))    
+    # print('Group2:', len(group2))
+    # print('Group3:', len(group3))
+    print('Group1:', group1)    
+    print('Group2:', group2)
+    print('Group3:', group3)
+    # tmp[dataY < 5] = [1, 0, 0]
+    # tmp[dataY >= 30] = [0, 0, 1]
+    # tmp[dataY >= 5 and dataY<30] = [0, 1, 0]
+
+    
     return tf.convert_to_tensor(dataX, dtype=tf.float32),tf.convert_to_tensor(tmp, dtype=tf.int16)
 
 # define get data ops
